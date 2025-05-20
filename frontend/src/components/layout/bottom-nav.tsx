@@ -7,37 +7,42 @@ import { Home, Search, Bookmark, User } from 'lucide-react';
 export function BottomNav() {
   const pathname = usePathname();
   
-  // Hide on login, register pages
+  // Hide on login and register pages
   if (pathname === '/login' || pathname === '/register') {
     return null;
   }
   
+  // Hide on dashboard pages (where sidebar is present)
+  if (pathname.startsWith('/dashboard')) {
+    return null;
+  }
+  
   return (
-    <div className="block lg:hidden fixed bottom-0 left-0 right-0 z-20 bg-white border-t shadow-lg">
+    <div className="block md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-gray-900 border-t shadow-lg">
       <div className="flex justify-around items-center">
         <NavItem 
           href="/" 
           icon={<Home size={20} />} 
-          label="Beranda" 
+          label="Home" 
           isActive={pathname === '/'} 
         />
         <NavItem 
           href="/search" 
           icon={<Search size={20} />} 
-          label="Cari" 
+          label="Search" 
           isActive={pathname === '/search'} 
         />
         <NavItem 
-          href="/saved" 
+          href="/dashboard/bookmarks" 
           icon={<Bookmark size={20} />} 
-          label="Simpan" 
-          isActive={pathname === '/saved'} 
+          label="Bookmarks" 
+          isActive={pathname === '/dashboard/bookmarks'} 
         />
         <NavItem 
-          href="/profile" 
+          href="/dashboard/profile" 
           icon={<User size={20} />} 
-          label="Profil" 
-          isActive={pathname === '/profile'} 
+          label="Profile" 
+          isActive={pathname === '/dashboard/profile'} 
         />
       </div>
     </div>
@@ -56,7 +61,7 @@ function NavItem({ href, icon, label, isActive }: NavItemProps) {
     <Link 
       href={href} 
       className={`flex flex-col items-center justify-center py-2 w-full ${
-        isActive ? 'text-blue-600' : 'text-gray-500'
+        isActive ? 'text-blue-600' : 'text-gray-500 dark:text-gray-400'
       }`}
     >
       {icon}
