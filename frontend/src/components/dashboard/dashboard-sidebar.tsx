@@ -1,4 +1,3 @@
-// src/components/dashboard/dashboard-sidebar.tsx
 'use client';
 
 import { useState } from 'react';
@@ -19,13 +18,18 @@ import {
   X,
   ChevronDown,
   ChevronRight,
+  Bell,
+  History,
+  Tag
 } from 'lucide-react';
+import { useTranslations } from '@/hooks/use-translations';
 
 export function DashboardSidebar() {
   const pathname = usePathname();
   const { user, isAdmin } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [adminMenuOpen, setAdminMenuOpen] = useState(false);
+  const { t } = useTranslations();
 
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
@@ -74,21 +78,35 @@ export function DashboardSidebar() {
               <NavItem
                 href="/dashboard"
                 icon={<LayoutDashboard size={20} />}
-                label="Dashboard"
+                label={t('general.dashboard')}
                 isActive={pathname === '/dashboard'}
                 onClick={closeSidebar}
               />
               <NavItem
                 href="/dashboard/bookmarks"
                 icon={<Bookmark size={20} />}
-                label="Bookmarks"
+                label={t('general.bookmarks')}
                 isActive={pathname === '/dashboard/bookmarks'}
+                onClick={closeSidebar}
+              />
+              <NavItem
+                href="/dashboard/reading-history"
+                icon={<History size={20} />}
+                label={t('general.readingHistory')}
+                isActive={pathname === '/dashboard/reading-history'}
+                onClick={closeSidebar}
+              />
+              <NavItem
+                href="/dashboard/notifications"
+                icon={<Bell size={20} />}
+                label={t('general.notifications')}
+                isActive={pathname === '/dashboard/notifications'}
                 onClick={closeSidebar}
               />
               <NavItem
                 href="/dashboard/profile"
                 icon={<Settings size={20} />}
-                label="Profile Settings"
+                label={t('general.profile')}
                 isActive={pathname === '/dashboard/profile'}
                 onClick={closeSidebar}
               />
@@ -120,6 +138,20 @@ export function DashboardSidebar() {
                       label="Articles"
                       isActive={pathname === '/dashboard/admin/articles' || 
                                 pathname.startsWith('/dashboard/admin/articles/')}
+                      onClick={closeSidebar}
+                    />
+                    <NavItem
+                      href="/dashboard/admin/categories"
+                      icon={<Globe size={18} />}
+                      label="Categories"
+                      isActive={pathname === '/dashboard/admin/categories'}
+                      onClick={closeSidebar}
+                    />
+                    <NavItem
+                      href="/dashboard/admin/tags"
+                      icon={<Tag size={18} />}
+                      label="Tags"
+                      isActive={pathname === '/dashboard/admin/tags'}
                       onClick={closeSidebar}
                     />
                     <NavItem

@@ -171,3 +171,25 @@ export interface DashboardStats {
     totalShares: number;
   };
 }
+
+// Notification type
+export interface Notification {
+  id: string;
+  type: string;
+  message: string;
+  read: boolean;
+  userId: string;
+  relatedId?: string | null;
+  createdAt: string;
+}
+
+// News API cache type (for admin/developer reference)
+export interface NewsApiCache {
+  id: string;
+  endpoint: string;
+  params: string;
+  data: string;
+  language: 'ENGLISH' | 'INDONESIAN';
+  expiresAt: string;
+  createdAt: string;
+}

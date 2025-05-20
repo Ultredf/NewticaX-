@@ -1,10 +1,9 @@
-// src/components/dashboard/dashboard-header.tsx
 'use client';
 
 import { useAuthStore } from '@/store/auth-store';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Bell, Moon, Sun, Globe } from 'lucide-react';
+import { Moon, Sun } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,11 +14,15 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useTheme } from 'next-themes';
 import { useRouter } from 'next/navigation';
+import { NotificationDropdown } from '@/components/notifications/notification-dropdown';
+import { LanguageSelector } from '@/components/layout/language-selector';
+import { useTranslations } from '@/hooks/use-translations';
 
 export function DashboardHeader() {
   const router = useRouter();
-  const { user, logout, language, setLanguage } = useAuthStore();
+  const { user, logout } = useAuthStore();
   const { theme, setTheme } = useTheme();
+  const { t } = useTranslations();
 
   // Get user initials for avatar
   const getInitials = (name: string = '') => {
@@ -29,11 +32,6 @@ export function DashboardHeader() {
       .join('')
       .toUpperCase()
       .substring(0, 2);
-  };
-
-  // Handle language toggle
-  const toggleLanguage = () => {
-    setLanguage(language === 'ENGLISH' ? 'INDONESIAN' : 'ENGLISH');
   };
 
   // Handle logout
@@ -54,14 +52,10 @@ export function DashboardHeader() {
           {/* Actions */}
           <div className="flex items-center gap-2">
             {/* Notifications */}
-            <Button size="icon" variant="ghost">
-              <Bell className="h-5 w-5" />
-            </Button>
+            <NotificationDropdown />
 
-            {/* Language Toggle */}
-            <Button size="icon" variant="ghost" onClick={toggleLanguage} title={`Switch to ${language === 'ENGLISH' ? 'Indonesian' : 'English'}`}>
-              <Globe className="h-5 w-5" />
-            </Button>
+            {/* Language Selector */}
+            <LanguageSelector />
 
             {/* Theme Toggle */}
             <Button 
@@ -97,14 +91,14 @@ export function DashboardHeader() {
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => router.push('/dashboard/profile')}>
-                  Profile Settings
+                  {t('general.profile')}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => router.push('/')}>
-                  Back to Homepage
+                  {t('general.homepage')}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout}>
-                  Log out
+                  {t('general.signOut')}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

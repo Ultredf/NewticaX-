@@ -8,13 +8,11 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { 
-  Bell, 
   Search, 
   Menu, 
   X,
   Moon,
   Sun,
-  Globe
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -26,6 +24,9 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useTheme } from 'next-themes';
+import { NotificationDropdown } from '@/components/notifications/notification-dropdown';
+import { LanguageSelector } from '@/components/layout/language-selector';
+import { useTranslations } from '@/hooks/use-translations';
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -36,7 +37,8 @@ export function Header() {
   const pathname = usePathname();
   const router = useRouter();
   const { theme, setTheme } = useTheme();
-  const { user, isAuthenticated, logout, language, setLanguage } = useAuthStore();
+  const { user, isAuthenticated, logout } = useAuthStore();
+  const { t } = useTranslations();
 
   // Handle search submit
   const handleSearchSubmit = (e: React.FormEvent) => {
@@ -73,11 +75,6 @@ export function Header() {
       .substring(0, 2);
   };
 
-  // Handle language toggle
-  const toggleLanguage = () => {
-    setLanguage(language === 'ENGLISH' ? 'INDONESIAN' : 'ENGLISH');
-  };
-
   return (
     <header className={`sticky top-0 z-40 w-full transition-all ${
       isScrolled ? 'bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm shadow-sm' : 'bg-white dark:bg-gray-900'
@@ -94,10 +91,10 @@ export function Header() {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-1">
             <Button variant="ghost" asChild>
-              <Link href="/">Home</Link>
+              <Link href="/">{t('general.homepage')}</Link>
             </Button>
             <Button variant="ghost" asChild>
-              <Link href="/trending">Trending</Link>
+              <Link href="/trending">{t('general.trending')}</Link>
             </Button>
             <Button variant="ghost" asChild>
               <Link href="/category/technology">Technology</Link>
@@ -117,7 +114,7 @@ export function Header() {
               <form onSubmit={handleSearchSubmit} className="relative md:w-80">
                 <Input
                   type="search"
-                  placeholder="Search articles..."
+                  placeholder={t('general.search') + '...'}
                   value={searchValue}
                   onChange={(e) => setSearchValue(e.target.value)}
                   className="pr-8"
@@ -138,10 +135,8 @@ export function Header() {
               </Button>
             )}
 
-            {/* Language Toggle */}
-            <Button size="icon" variant="ghost" onClick={toggleLanguage} title={`Switch to ${language === 'ENGLISH' ? 'Indonesian' : 'English'}`}>
-              <Globe className="h-5 w-5" />
-            </Button>
+            {/* Language Selector */}
+            <LanguageSelector />
 
             {/* Theme Toggle */}
             <Button 
@@ -159,9 +154,8 @@ export function Header() {
             {/* User Menu */}
             {isAuthenticated ? (
               <>
-                <Button size="icon" variant="ghost" className="hidden md:flex">
-                  <Bell className="h-5 w-5" />
-                </Button>
+                {/* Notifications */}
+                <NotificationDropdown />
                 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -184,13 +178,19 @@ export function Header() {
                     <DropdownMenuSeparator />
                     <DropdownMenuGroup>
                       <DropdownMenuItem asChild>
-                        <Link href="/dashboard">Dashboard</Link>
+                        <Link href="/dashboard">{t('general.dashboard')}</Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <Link href="/dashboard/bookmarks">Bookmarks</Link>
+                        <Link href="/dashboard/bookmarks">{t('general.bookmarks')}</Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <Link href="/dashboard/profile">Profile</Link>
+                        <Link href="/dashboard/reading-history">{t('general.readingHistory')}</Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/dashboard/notifications">{t('general.notifications')}</Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/dashboard/profile">{t('general.profile')}</Link>
                       </DropdownMenuItem>
                       {user?.role === 'ADMIN' && (
                         <DropdownMenuItem asChild>
@@ -200,7 +200,7 @@ export function Header() {
                     </DropdownMenuGroup>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={() => logout()}>
-                      Log out
+                      {t('general.signOut')}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -208,10 +208,10 @@ export function Header() {
             ) : (
               <div className="flex items-center gap-2">
                 <Button variant="ghost" size="sm" asChild className="hidden md:inline-flex">
-                  <Link href="/login">Sign in</Link>
+                  <Link href="/login">{t('general.signIn')}</Link>
                 </Button>
                 <Button size="sm" asChild>
-                  <Link href="/register">Sign up</Link>
+                  <Link href="/register">{t('general.signUp')}</Link>
                 </Button>
               </div>
             )}
@@ -234,10 +234,10 @@ export function Header() {
         <div className="md:hidden border-t">
           <div className="container mx-auto px-4 py-3 space-y-1">
             <Button variant="ghost" className="w-full justify-start" asChild>
-              <Link href="/">Home</Link>
+              <Link href="/">{t('general.homepage')}</Link>
             </Button>
             <Button variant="ghost" className="w-full justify-start" asChild>
-              <Link href="/trending">Trending</Link>
+              <Link href="/trending">{t('general.trending')}</Link>
             </Button>
             <Button variant="ghost" className="w-full justify-start" asChild>
               <Link href="/category/technology">Technology</Link>
@@ -252,10 +252,10 @@ export function Header() {
             {!isAuthenticated && (
               <>
                 <Button variant="ghost" className="w-full justify-start" asChild>
-                  <Link href="/login">Sign in</Link>
+                  <Link href="/login">{t('general.signIn')}</Link>
                 </Button>
                 <Button variant="default" className="w-full justify-start" asChild>
-                  <Link href="/register">Sign up</Link>
+                  <Link href="/register">{t('general.signUp')}</Link>
                 </Button>
               </>
             )}
