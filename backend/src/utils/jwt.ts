@@ -7,7 +7,7 @@ export const generateToken = (userId: string): string => {
   });
 };
 
-export const verifyToken = (token: string) => {
+export const verifyToken = (token: string): { userId: string } | null => {
   try {
     return jwt.verify(token, env.JWT_SECRET) as { userId: string };
   } catch (error) {

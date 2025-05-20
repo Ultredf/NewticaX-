@@ -2,11 +2,15 @@ import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import passport from 'passport';
+import session from 'express-session';
 import { connectDB } from './config/db';
 import { env } from './config/env';
 import routes from './routes';
 import { errorHandler } from './utils/errorHandler';
-import { Request, Response, NextFunction } from 'express';
+import { setupPassport } from './config/passport';
+import { startNewsAPIFetcher } from './services/news-api.service';
+import { initializeAdmin } from './services/admin.service';
 
 // Load environment variables
 dotenv.config();
@@ -15,15 +19,39 @@ dotenv.config();
 const app = express();
 
 // Connect to database
-connectDB();
+connectDB().then(() => {
+  // Initialize admin user if not exists
+  initializeAdmin();
+  
+  // Start the NewsAPI fetcher for background updates
+  startNewsAPIFetcher();
+});
 
 // Middlewares
 app.use(cors({
   origin: env.CORS_ORIGIN,
   credentials: true,
 }));
+
 app.use(express.json());
 app.use(cookieParser(env.COOKIE_SECRET));
+
+// Session configuration for OAuth
+app.use(session({
+  secret: env.COOKIE_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: env.NODE_ENV === 'production',
+    maxAge: env.COOKIE_EXPIRES,
+    httpOnly: true,
+  }
+}));
+
+// Initialize Passport
+app.use(passport.initialize());
+app.use(passport.session());
+setupPassport();
 
 // Routes
 app.use('/api', routes);
@@ -34,17 +62,12 @@ app.get('/health', (req, res) => {
 });
 
 // Error handler middleware
-// Error handler middleware
-interface ErrorHandler {
-  (err: any, req: Request, res: Response, next: NextFunction): void;
-}
-
-const errorHandlerMiddleware: ErrorHandler = (err, req, res, next) => errorHandler(err, req, res, next);
-
-app.use(errorHandlerMiddleware);
+app.use(errorHandler);
 
 // Start server
 const PORT = env.PORT;
 app.listen(PORT, () => {
   console.log(`✅ Server running on port ${PORT}`);
 });
+
+export default app;
