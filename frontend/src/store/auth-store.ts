@@ -1,7 +1,7 @@
-// frontend/src/store/auth-store.ts
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { User } from '@/types';
+import api from '@/lib/api';
+import { User, LoginInput, RegisterInput } from '@/types';
 
 interface AuthState {
   user: User | null;
@@ -10,6 +10,9 @@ interface AuthState {
   error: string | null;
   language: 'ENGLISH' | 'INDONESIAN';
   getMe: () => Promise<void>;
+  login: (data: LoginInput) => Promise<any>;
+  register: (data: RegisterInput) => Promise<any>;
+  logout: () => Promise<void>;
   setLanguage: (language: 'ENGLISH' | 'INDONESIAN') => Promise<void>;
   clearError: () => void;
 }
@@ -26,12 +29,11 @@ export const useAuthStore = create<AuthState>()(
       getMe: async () => {
         try {
           set({ isLoading: true });
-          // Placeholder for API call
-          // Normally you'd fetch the user from API
+          const response = await api.get('/auth/me');
           set({
             isLoading: false,
-            user: null,
-            isAuthenticated: false,
+            user: response.data.data,
+            isAuthenticated: true,
           });
         } catch (error) {
           set({
@@ -41,10 +43,67 @@ export const useAuthStore = create<AuthState>()(
           });
         }
       },
+
+      login: async (data: LoginInput) => {
+        try {
+          set({ isLoading: true, error: null });
+          const response = await api.post('/auth/login', data);
+          set({
+            isLoading: false,
+            user: response.data.data,
+            isAuthenticated: true,
+          });
+          return response.data;
+        } catch (error: any) {
+          set({
+            isLoading: false,
+            error: error.response?.data?.message || 'Login failed',
+          });
+          throw error;
+        }
+      },
+
+      register: async (data: RegisterInput) => {
+        try {
+          set({ isLoading: true, error: null });
+          const response = await api.post('/auth/register', data);
+          set({
+            isLoading: false,
+            user: response.data.data,
+            isAuthenticated: true,
+          });
+          return response.data;
+        } catch (error: any) {
+          set({
+            isLoading: false,
+            error: error.response?.data?.message || 'Registration failed',
+          });
+          throw error;
+        }
+      },
+
+      logout: async () => {
+        try {
+          await api.post('/auth/logout');
+          set({
+            user: null,
+            isAuthenticated: false,
+          });
+        } catch (error) {
+          console.error('Logout error:', error);
+        }
+      },
       
       setLanguage: async (language) => {
         set({ language });
-        // Placeholder for API call to update language preference
+        try {
+          // If user is authenticated, update language preference on server
+          if (useAuthStore.getState().isAuthenticated) {
+            await api.put('/auth/language', { language });
+          }
+        } catch (error) {
+          console.error('Failed to update language preference:', error);
+        }
       },
       
       clearError: () => {
